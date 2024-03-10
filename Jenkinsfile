@@ -7,7 +7,9 @@ pipeline {
     stages {
         stage('Compile') {
             steps {
-                dir("/source/idempiere-target-platform-plugin"){
+                git branch: '11.0', url: 'https://github.com/ingeint/idempiere-target-platform-plugin.git'
+                dir("idempiere-target-platform-plugin"){
+                    sh "ls"
                     sh "./plugin-builder ${WORKSPACE}/org.idempiere.sandbox"
                 }
             }

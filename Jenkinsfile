@@ -1,13 +1,12 @@
 pipeline {
     agent {
-        docker { image 'eclipse-temurin:17-jdk' }
+        docker { image 'idempiereofficial/idempiere:source-release-11.0' }
     }
 
     stages {
-        stage('Test') {
+        stage('Compile') {
             steps {
-                echo 'Hello World!'
-                sh 'java --version'
+                sh 'ls'
             }
         }
     }

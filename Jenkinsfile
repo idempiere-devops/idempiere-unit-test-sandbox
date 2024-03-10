@@ -27,6 +27,11 @@ pipeline {
             }
             steps {
                 copyArtifacts filter: "target/${PLUGIN_NAME}-${IDEMPIERE_VERSION}.${BUILD_NUMBER}.jar", fingerprintArtifacts: true, projectName: env.JOB_NAME, selector: specific(env.BUILD_NUMBER)
+                sh 'cp target/${PLUGIN_NAME}-${IDEMPIERE_VERSION}.${BUILD_NUMBER}.jar /home/jenkins/plugins'
+                dir('deployer') {
+                    git branch: 'master', url: 'https://github.com/ingeint/idempiere-plugin-deployer.git'
+                    sh './deployer.sh deploy -h 127.0.0.1 -p 12612 -n ${PLUGIN_NAME} -l 5 -j /home/jenkins/plugins/${PLUGIN_NAME}-${IDEMPIERE_VERSION}.${BUILD_NUMBER}.jar'
+                }
             }
         }
     }

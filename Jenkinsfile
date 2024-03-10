@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Compile') {
             steps {
-                sh 'ls'
+                sh '/source/idempiere-target-platform-plugin/plugin-builder ./org.idempiere.sandbox'
             }
         }
     }

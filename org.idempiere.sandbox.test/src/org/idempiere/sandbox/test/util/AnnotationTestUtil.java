@@ -28,9 +28,9 @@ import java.util.List;
 /**
  * Annotations assertions
  */
-public final class AnnotationsTestUtil {
+public final class AnnotationTestUtil {
 
-	private AnnotationsTestUtil() {
+	private AnnotationTestUtil() {
 		throw new IllegalStateException("Utility class");
 	}
 

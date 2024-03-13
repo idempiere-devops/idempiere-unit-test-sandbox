@@ -1,7 +1,7 @@
 package org.idempiere.sandbox.callout;
 
-import static org.idempiere.sandbox.test.util.AnnotationsTestUtil.assertClassAnnotation;
-import static org.idempiere.sandbox.test.util.AnnotationsTestUtil.assertClassAnnotationParameter;
+import static org.idempiere.sandbox.test.util.AnnotationTestUtil.assertClassAnnotation;
+import static org.idempiere.sandbox.test.util.AnnotationTestUtil.assertClassAnnotationParameter;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;

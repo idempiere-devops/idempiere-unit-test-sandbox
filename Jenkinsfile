@@ -3,6 +3,7 @@ pipeline {
     environment {
         PLUGIN_NAME = 'org.idempiere.sandbox'
         IDEMPIERE_VERSION = '11.0.0'
+        JAR_NAME = "${PLUGIN_NAME}-${IDEMPIERE_VERSION}.${BUILD_NUMBER}.jar"
     }
     stages {
         stage('Compile') {
@@ -15,7 +16,7 @@ pipeline {
                 dir('target-platform') {
                     git branch: '11.0', url: 'https://github.com/ingeint/idempiere-target-platform-plugin.git'
                     sh './plugin-builder build ../${PLUGIN_NAME} ../${PLUGIN_NAME}.test'
-                    archiveArtifacts artifacts: "target/${PLUGIN_NAME}-${IDEMPIERE_VERSION}.${BUILD_NUMBER}.jar", fingerprint: true
+                    archiveArtifacts artifacts: "target/${JAR_NAME}", fingerprint: true
                 }
             }
         }
@@ -26,11 +27,11 @@ pipeline {
                 }
             }
             steps {
-                copyArtifacts filter: "target/${PLUGIN_NAME}-${IDEMPIERE_VERSION}.${BUILD_NUMBER}.jar", fingerprintArtifacts: true, projectName: env.JOB_NAME, selector: specific(env.BUILD_NUMBER)
-                sh 'cp target/${PLUGIN_NAME}-${IDEMPIERE_VERSION}.${BUILD_NUMBER}.jar /home/jenkins/plugins'
+                copyArtifacts filter: "target/${JAR_NAME}", fingerprintArtifacts: true, projectName: "${JOB_NAME}", selector: specific("${BUILD_NUMBER}")
+                sh 'cp target/${JAR_NAME} /home/jenkins/plugins'
                 dir('deployer') {
                     git branch: 'master', url: 'https://github.com/ingeint/idempiere-plugin-deployer.git'
-                    sh './deployer.sh deploy -h 127.0.0.1 -p 12612 -n ${PLUGIN_NAME} -l 5 -j /home/jenkins/plugins/${PLUGIN_NAME}-${IDEMPIERE_VERSION}.${BUILD_NUMBER}.jar'
+                    sh './deployer.sh deploy -h 127.0.0.1 -p 12612 -n ${PLUGIN_NAME} -l 5 -j /home/jenkins/plugins/${JAR_NAME}'
                 }
             }
         }

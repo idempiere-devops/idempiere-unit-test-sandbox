@@ -2,9 +2,10 @@ package org.idempiere.sandbox.callout;
 
 import java.util.Random;
 
-public class FakeExternalService {
+public class RealTaxIDVerifier implements TaxIDVerifier {
 
-	public boolean validateTaxID(String value) {
+	@Override
+	public boolean isValid(int id) throws Exception {
 		Random random = new Random();
 		return random.nextBoolean();
 	}

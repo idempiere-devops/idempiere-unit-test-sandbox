@@ -3,9 +3,11 @@ package org.idempiere.sandbox.callout;
 import static org.idempiere.sandbox.test.util.AnnotationTestUtil.assertClassAnnotation;
 import static org.idempiere.sandbox.test.util.AnnotationTestUtil.assertClassAnnotationParameter;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.adempiere.base.annotation.Callout;
@@ -28,57 +30,138 @@ public class ValidateTaxIDTest {
 	// STATE TESTS
 
 	@Test
-	public void validateContainsOnlyNumbers() {
-		ValidateTaxID callout = new ValidateTaxID();
+	void returnNullWhenNullInput() {
+		ValidateTaxID callout = new ValidateTaxID(new FakeTaxIDVerifier()); // ARRANGE
 
-		callout.start(null, 0, null, null, RandomTestUtil.getRandomString(), null);
+		String result = callout.start(null, 0, null, null, null, null); // ACT
 
-		assertThat(callout.start()).isEqualTo("Invalid Tax ID format, It has to be a number");
-	}
-
-	// BEHAVIOR TESTS
-
-	@Test
-	public void invalidFromExternalService() {
-		FakeExternalService externalService = mock(FakeExternalService.class);
-		when(externalService.validateTaxID(anyString())).thenReturn(false);
-		ValidateTaxID callout = new ValidateTaxID(externalService);
-
-		String result = callout.start(null, 0, null, null, String.valueOf(RandomTestUtil.getRandomLong()), null);
-
-		assertThat(result).isEqualTo("Invalid Tax ID");
+		assertThat(result).isNull(); // ASSERT
 	}
 
 	@Test
-	public void invalidFromExternalServiceWithReflection() throws ReflectiveOperationException {
-		FakeExternalService externalService = mock(FakeExternalService.class);
-		when(externalService.validateTaxID(anyString())).thenReturn(false);
-		ValidateTaxID callout = new ValidateTaxID();
+	void returnNullWhenTaxIDIsANumber() {
+		ValidateTaxID callout = new ValidateTaxID(new FakeTaxIDVerifier());
 
-		// If you cannot use the constructor you can use reflection
-		ReflectionTestUtil.setFieldValue(callout, "service", externalService);
-		ReflectionTestUtil.setFieldValue(callout, "value", String.valueOf(RandomTestUtil.getRandomLong()));
-
-		assertThat(callout.start()).isEqualTo("Invalid Tax ID");
-	}
-
-	@Test
-	public void validFromExternalService() {
-		FakeExternalService externalService = mock(FakeExternalService.class);
-		when(externalService.validateTaxID(anyString())).thenReturn(true);
-		ValidateTaxID callout = new ValidateTaxID(externalService);
-
-		String result = callout.start(null, 0, null, null, String.valueOf(RandomTestUtil.getRandomLong()), null);
+		String result = callout.start(null, 0, null, null, RandomTestUtil.getRandomInt(), null);
 
 		assertThat(result).isNull();
 	}
 
 	@Test
-	public void validateExternalServiceException() {
+	void returnAMessageWhenTaxIDIsAString() {
+		Object input = RandomTestUtil.getRandomString();
+		ValidateTaxID callout = new ValidateTaxID(new FakeTaxIDVerifier());
+
+		String result = callout.start(null, 0, null, null, input, null);
+
+		assertThat(result).isEqualTo("Invalid format: '%s'".formatted(input));
+	}
+
+	@Test
+	void returnNullIfStringIsvalid() {
+		Object input = String.valueOf(RandomTestUtil.getRandomInt());
+		ValidateTaxID callout = new ValidateTaxID(new FakeTaxIDVerifier());
+
+		String result = callout.start(null, 0, null, null, input, null);
+
+		assertThat(result).isNull();
+	}
+
+	@Test
+	void returnErrorOnInvalidValueType() {
+		Object input = getRandomObject();
+		ValidateTaxID callout = new ValidateTaxID(new FakeTaxIDVerifier());
+
+		String result = callout.start(null, 0, null, null, input, null);
+
+		assertThat(result).isEqualTo("Invalid format: '%s'".formatted(input));
+	}
+
+	private Object getRandomObject() {
+		return RandomTestUtil.getRandomBoolean() ? RandomTestUtil.getRandomFloat() : RandomTestUtil.getRandomBoolean();
+	}
+
+	// BEHAVIOR TESTS
+
+	@Test
+	void returnMessageIfVerifierServiceSaysItIsAnInvalidNumber() throws Exception {
+		int input = RandomTestUtil.getRandomInt();
+
+		TaxIDVerifier verifier = mock(TaxIDVerifier.class);
+		when(verifier.isValid(anyInt())).thenReturn(false);
+
+		ValidateTaxID callout = new ValidateTaxID(verifier);
+		String result = callout.start(null, 0, null, null, input, null); // ACT
+
+		assertThat(result).isEqualTo("Invalid ID");
+		verify(verifier).isValid(input);
+	}
+
+	@Test
+	void returnMessageIfVerifierServiceSaysItIsAnInvalidNumberWhenString() throws Exception {
+		int input = RandomTestUtil.getRandomInt();
+
+		TaxIDVerifier verifier = mock(TaxIDVerifier.class);
+		when(verifier.isValid(anyInt())).thenReturn(false);
+
+		ValidateTaxID callout = new ValidateTaxID(verifier);
+
+		String result = callout.start(null, 0, null, null, String.valueOf(input), null); // ACT
+
+		assertThat(result).isEqualTo("Invalid ID");
+		verify(verifier).isValid(input);
+	}
+
+	@Test
+	void returnNullIfNumberIsValid() throws Exception {
+		int input = RandomTestUtil.getRandomInt();
+
+		TaxIDVerifier verifier = mock(TaxIDVerifier.class);
+		when(verifier.isValid(anyInt())).thenReturn(true);
+
+		ValidateTaxID callout = new ValidateTaxID(verifier);
+
+		String result = callout.start(null, 0, null, null, input, null); // ACT
+
+		assertThat(result).isNull();
+		verify(verifier).isValid(input);
+	}
+
+	@Test
+	void returnNullIfStringIsValid() throws Exception {
+		int input = RandomTestUtil.getRandomInt();
+
+		TaxIDVerifier verifier = mock(TaxIDVerifier.class);
+		when(verifier.isValid(anyInt())).thenReturn(true);
+
+		ValidateTaxID callout = new ValidateTaxID(verifier);
+
+		String result = callout.start(null, 0, null, null, String.valueOf(input), null); // ACT
+
+		assertThat(result).isNull();
+		verify(verifier).isValid(input);
+	}
+
+	// USING REFLECTION
+
+	@Test
+	public void validFromExternalServiceWithReflection() throws ReflectiveOperationException {
+		ValidateTaxID callout = new ValidateTaxID(new FakeTaxIDVerifier());
+
+		// If you cannot use the constructor you can use reflection
+		ReflectionTestUtil.setFieldValue(callout, "value", String.valueOf(RandomTestUtil.getRandomLong()));
+
+		assertThat(callout.start()).isNull();
+	}
+
+	// TEST EXCEPTION
+
+	@Test
+	public void validateExternalServiceException() throws Exception {
 		String expectedMessage = "Error connectiong to external service";
 
-		FakeExternalService externalService = mock(FakeExternalService.class);
-		when(externalService.validateTaxID(anyString())).thenThrow(new RuntimeException(expectedMessage));
+		TaxIDVerifier externalService = mock(TaxIDVerifier.class);
+		when(externalService.isValid(anyInt())).thenThrow(new RuntimeException(expectedMessage));
 
 		ValidateTaxID callout = new ValidateTaxID(externalService);
 

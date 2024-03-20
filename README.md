@@ -1,40 +1,8 @@
 # iDempiere Unit Test Sandbox
 
-- Copyright: 2024 iDempiere DevOps
-- Repository: <https://github.com/idempiere-devops/idempiere-unit-test-sandbox.git>
-- License: GPL 2
-
 ## Description
 
-Put the plugin description here
-
-## Contributors
-
-- Put the contributor list here, format: Year Name <name@email.com>.
-
-## Components
-
-- iDempiere Plugin [org.idempiere.sandbox](org.idempiere.sandbox)
-- iDempiere Unit Test Fragment [org.idempiere.sandbox.test](org.idempiere.sandbox.test)
-- iDempiere Target Platform [org.idempiere.sandbox.targetplatform](org.idempiere.sandbox.targetplatform)
-
-## Prerequisites
-
-- Java 17, commands `java` and `javac`.
-- iDempiere 11.0.0
-- Set `IDEMPIERE_REPOSITORY` env variable
-
-## Features/Documentation
-
-- Put the plugin feature list here
-
-## Instructions
-
-- Put the instructions list to install here
-
-## Extra Links
-
-- Put the documentation/links here
+This sandbox will help you on undestand and promote unit test on iDempiere, as matter of complement you can see this [presentation](https://docs.google.com/presentation/d/1KZelUWcIU6KI2lHYagtllWoiEkfJOZpewIixntj7h4o/edit?usp=sharing).
 
 ## Compile Plugin
 
